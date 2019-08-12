@@ -1,0 +1,18 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rack (2.0.7)
+    rack-app (7.5.2)
+      rack
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  rack-app
+
+RUBY VERSION
+   ruby 2.3.7p456
+
+BUNDLED WITH
+   1.16.1
