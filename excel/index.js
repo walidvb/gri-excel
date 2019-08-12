@@ -1,3 +1,4 @@
+const Excel = require('exceljs/modern.nodejs');
 
 const { computeStepPrice } =  require('./pricing');
 const data = require('./data')
@@ -29,7 +30,6 @@ class Excelor{
   }
   addInfo(){
     // addHeader(sheet)
-    this.addColumnNames()
     this.rooms.forEach(this.addRoom.bind(this))
     // addTotal(sheet)
   }
@@ -75,7 +75,6 @@ class Excelor{
     }
   }
   initWorkBook(){
-    const Excel = require('exceljs/modern.nodejs');
     var workbook = new Excel.Workbook();
     workbook.creator = 'Me';
     workbook.lastModifiedBy = 'Her';

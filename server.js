@@ -4,11 +4,13 @@ const http = require('http'),
     path = require('path'),
     fs = require('fs');
 
+const processPost = require('./processPost')
 const excelor = require('./excel')
 const port = 3000
 
-const requestHandler = async (req, res) => {
-  const fileName = await new excelor(req.data).createDocument()
+const requestHandler = (req, res) => processPost(req, res, async () => {
+  console.log(req.post)
+  const fileName = await new excelor(req.post).createDocument()
   fs.exists(fileName, function (exists) {
     if (!exists) {
       console.log("not exists: " + fileName);
@@ -26,7 +28,7 @@ const requestHandler = async (req, res) => {
     fileStream.pipe(res);
     // res.end()
   }); //end path.exists
-}
+})
 
 const server = http.createServer(requestHandler)
 
