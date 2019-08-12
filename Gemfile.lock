@@ -1,14 +1,24 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    axlsx (2.0.1)
+      htmlentities (~> 4.3.1)
+      nokogiri (>= 1.4.1)
+      rubyzip (~> 1.0.0)
+    htmlentities (4.3.4)
+    mini_portile2 (2.4.0)
+    nokogiri (1.10.4)
+      mini_portile2 (~> 2.4.0)
     rack (2.0.7)
     rack-app (7.5.2)
       rack
+    rubyzip (1.0.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  axlsx
   rack-app
 
 RUBY VERSION
