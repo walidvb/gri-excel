@@ -12,7 +12,7 @@ DEPENDENCIES
   rack-app
 
 RUBY VERSION
-   ruby 2.3.7p456
+   ruby 2.6.0p0
 
 BUNDLED WITH
-   1.16.1
+   1.17.2
