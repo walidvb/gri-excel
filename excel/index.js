@@ -69,7 +69,6 @@ class Excelor{
       ]
       this.sheet.addRow(stepRow)
       const row = this.sheet.lastRow
-      const { _number } = row
       const priceFormula = `${row.getCell('quantity')._address} * ${row.getCell('unit_price')._address}`
       const totalFormula = `MAX(${priceFormula}, ${price})`
       row.getCell('total').value = { formula: totalFormula }

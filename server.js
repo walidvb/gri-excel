@@ -7,8 +7,8 @@ const http = require('http'),
 const excelor = require('./excel')
 const port = 3000
 
-const requestHandler = async (request, res) => {
-  const fileName = await excelor()
+const requestHandler = async (req, res) => {
+  const fileName = await new excelor(req.data).createDocument()
   fs.exists(fileName, function (exists) {
     if (!exists) {
       console.log("not exists: " + fileName);
