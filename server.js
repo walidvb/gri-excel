@@ -9,7 +9,6 @@ const port = 3000
 
 const requestHandler = async (request, res) => {
   const fileName = await excelor()
-  console.log(fileName)
   fs.exists(fileName, function (exists) {
     if (!exists) {
       console.log("not exists: " + fileName);
