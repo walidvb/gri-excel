@@ -1,0 +1,9 @@
+{
+    "apps": [
+        {
+            "name": "gri-excel-micro",
+            "script": "node",
+            "args" : "server.js"
+        }
+    ]
+}

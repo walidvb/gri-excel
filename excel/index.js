@@ -1,7 +1,7 @@
 const Excel = require('exceljs/modern.nodejs');
 
 const { computeStepPrice } =  require('./pricing');
-const data = require('./data')
+//const data = require('./data')
 
 const COLUMNS = [
  {header: 'No', key: 'no', width: 10},
@@ -85,5 +85,5 @@ class Excelor{
   }
 }
 
-new Excelor(data).createDocument()
+//new Excelor(data).createDocument()
 module.exports = Excelor
