@@ -13,7 +13,8 @@ const COLUMNS = [
  {header: 'Total', key: 'total', width: 20}
 ]
 const colToLetter = (n) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[n-1]
-const lastCol = colToLetter(COLUMNS.length)
+const LAST_COL = colToLetter(COLUMNS.length)
+
 class Excelor{
   constructor(data){
     this.data = data
@@ -23,7 +24,10 @@ class Excelor{
   }
   async createDocument(){
     this.initWorkBook()
-    this.sheet = this.workbook.addWorksheet('My Sheet')
+    this.sheet = this.workbook.addWorksheet('My Sheet', {
+      pageSetup: { fitToPage: true, fitToHeight: 5, fitToWidth: 7 }
+    })
+    this.sheet.properties.defaultRowHeight = 15
     this.sheet.columns = COLUMNS
     this.addInfo()
     const filename = "now.xls"
@@ -34,6 +38,7 @@ class Excelor{
     this.addHeader()
     this.rooms.forEach(this.addRoom.bind(this))
     this.addTotals()
+    this.addFooter()
   }
   addColumnNames(){
     this.sheet.addRow(COLUMNS);
@@ -64,11 +69,10 @@ class Excelor{
       for(let i = 0; i < lastRow; i++){
         this.sheet.addRow()
       }
-      this.sheet.addImage(banner, `A1:${lastCol}5`)
+      this.sheet.addImage(banner, `A1:${LAST_COL}5`)
     }
   }
-  addRoom({ name, steps }){
-    console.log(name)
+  addRoom({ name, steps }){ 
     addRoomTitle.call(this)
     const firstRoomRow = this.sheet.lastRow._number + 1
     steps.forEach(addStep.bind(this))
@@ -89,7 +93,7 @@ class Excelor{
       const row = this.sheet.lastRow
       const number = row._number
       row.font = { bold: true }
-      this.sheet.mergeCells(`B${number}:${lastCol}${number}`)
+      this.sheet.mergeCells(`B${number}:${LAST_COL}${number}`)
     }
     function addStep(step) {
       const { id, quantity, unit_price, description, unit, price } = step
@@ -110,11 +114,63 @@ class Excelor{
     }
   }
   addTotals(){
-    this.sheet.addRow(['', '', '', '', 'Total', ''])
-    const formula = `SUM(${this.cellsThatAreTotal.map(c => c._address).join(',')})`
-    const row = this.sheet.lastRow
-    row.getCell('total').value = { formula };
+    const total = `SUM(${this.cellsThatAreTotal.map(c => c._address).join(',')})`
+    const ht = this.addFormula(total, 'TOTAL H.T')
+    const tvaForm = `${ht._address}*7.7%`
+    const tva = this.addFormula(tvaForm, 'T.V.A. 7.7%')
+    const ttcForm = `${ht._address}+${tva._address}`
+    this.addFormula(ttcForm, 'TOTAL T.T.C.')
+  }
+  addFooter(){
+    const terms = [
+        'Ce devis a été établi sur la base des éléments dont nous disposons, ne sont pas compris tous travaux qui ne sont pas explicitement décrits.',
+        "L'acceptation de ce devis implique l'entière compréhension des points énumérés.",
+        "Avant tout travaux de carrelage, un test amiante est nécessaire. En cas de présence de matériaux amiantés, les mesures nécessaires devront être prises pour l'élimination de ceux-ci.",
+        "Tous travaux de réfection, modification d'affectation ou de rénovations doivent être annoncés auprès du DCTI et des départements concernés. Le propriétaire s'engage à effectuer les démarches administratives lui-même ou par le biais d'un architecte. L'entreprise GRI ne serait être responsable en cas d'éventuel recours.",
+    ]
+    const notes = [
+        "Note:",
+        "Un premier acompte d'environ 30% du montant de l'adjudication sera demandé pour l'ouverture du chantier.",
+        "Un deuxième acompte sera demandé à la fin du premier tiers du chantier.",
+        "Un troisième acompte sera demandé à la fin du deuxième tiers du chantier.",
+        "Une facture du solde du montant final sera envoyée à la fin du chantier.",
+        "",
+    ]
+    addLine = addLine.bind(this)
 
+    terms.forEach(t => addLine(t, { bold: true }))
+    this.addEmptyRow()
+    notes.forEach(t => addLine(t, { bold: true }))
+    this.addEmptyRow()
+    this.addEmptyRow()
+    addLine(
+      "En cas d'acceptation, nous vous remercions de nous retourner la copie de ce devis datée et signée et portant la mention manuscrite \"Bon pour accord et travaux\".",
+      { italic: true, size: 10 }
+      )
+    this.addEmptyRow()
+    addLine("BON POUR ACCORD", { bold: true })
+    this.addEmptyRow()
+    this.sheet.addRow(['', 'Signature', 'Genève, le'])
+
+    this.addEmptyRow()
+    this.addEmptyRow()
+    this.addEmptyRow()
+    
+    addLine(
+      "Selon la loi fédérale contre la concurrence déloyale, l'utilisation ou reproduction du devis sont strictement interdites sans l'autorisation écrite de l'entreprise.",
+      { italic: true, size: 10 }
+      )
+    this.addEmptyRow()
+    addLine("Payable à:  UBS -  IBAN CH05 0024 0240 3998 0401F")
+
+    function addLine(text, font){
+      this.sheet.addRow(['', text])
+      const lastRow = this.sheet.lastRow
+      this.merge('B', LAST_COL)
+      lastRow.font = font
+      lastRow.alignment = { wrapText: true }
+      return lastRow
+    }
   }
   initWorkBook(){
     var workbook = new Excel.Workbook();
@@ -124,6 +180,23 @@ class Excelor{
     workbook.modified = new Date();
     workbook.lastPrinted = new Date(2016, 9, 27);
     this.workbook = workbook
+  }
+  merge(from, to){
+    const lastRow = this.sheet.lastRow
+    this.sheet.mergeCells(`${from}${lastRow._number}:${to}${lastRow._number}`)
+    return lastRow
+  }
+  addEmptyRow(){
+    this.sheet.addRow()
+  }
+  addFormula(formula, text="Total"){
+    this.sheet.addRow(['', '', '', '', text, ''])
+    const row = this.sheet.lastRow
+    const cell = row.getCell('total')
+    cell.value = { formula };
+    cell.font = { bold: true}
+    row.alignment = { vertical: 'bottom', horizontal: 'right' };
+    return cell
   }
 }
 
