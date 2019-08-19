@@ -1,7 +1,5 @@
-var http = require('http');
-var querystring = require('querystring');
 
-function processPost(request, response, callback) {
+function processPostRequest(request, response, callback) {
     var queryData = "";
     if(typeof callback !== 'function') return null;
 
@@ -26,4 +24,4 @@ function processPost(request, response, callback) {
       response.end();
     }
 }
-module.exports = processPost
+module.exports = processPostRequest

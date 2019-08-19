@@ -1,4 +1,5 @@
 const Excel = require('exceljs/modern.nodejs');
+const fs = require('fs');
 
 const { computeStepPrice } =  require('./pricing');
 //const data = require('./data')
@@ -18,6 +19,7 @@ class Excelor{
     this.data = data
     this.rooms = data.version.rooms
     this.date = data.version.created_at
+    this.cellsThatAreTotal = []
   }
   async createDocument(){
     this.initWorkBook()
@@ -29,14 +31,44 @@ class Excelor{
     return filename
   }
   addInfo(){
-    // addHeader(sheet)
+    this.addHeader()
     this.rooms.forEach(this.addRoom.bind(this))
     // addTotal(sheet)
   }
   addColumnNames(){
     this.sheet.addRow(COLUMNS);
   }
+  addHeader(){
+    addImage.call(this)
+    addDetails = addDetails.bind(this)
+    addDetails('TVA: ')
+    addDetails('OFFRE N: ','', 'Date' )
+    addDetails('CONCERNE: ')
+    addDetails('Adresse: ')
+    addDetails('Contact: ')
+    addDetails('Selon votre demande de devis No: ')
+    addDetails('Vos Contact: ')
+
+    function addDetails(...details){
+      this.sheet.addRow(details)
+      const lastRow = this.sheet.lastRow._number
+      this.sheet.mergeCells(`A${lastRow}:B${lastRow}`)
+    }
+    
+    function addImage(){
+      var banner = this.workbook.addImage({
+        buffer: fs.readFileSync('banner.png'),
+        extension: 'png',
+      });
+      var lastRow = 5
+      for(let i = 0; i < lastRow; i++){
+        this.sheet.addRow()
+      }
+      this.sheet.addImage(banner, `A1:${lastCol}5`)
+    }
+  }
   addRoom({ name, steps }){
+    console.log(name)
     addRoomTitle.call(this)
     const firstRoomRow = this.sheet.lastRow._number + 1
     steps.forEach(addStep.bind(this))
@@ -71,7 +103,9 @@ class Excelor{
       const row = this.sheet.lastRow
       const priceFormula = `${row.getCell('quantity')._address} * ${row.getCell('unit_price')._address}`
       const totalFormula = `MAX(${priceFormula}, ${price})`
-      row.getCell('total').value = { formula: totalFormula }
+      const roomTotalCell = row.getCell('total')
+      roomTotalCell.value = { formula: totalFormula }
+      this.cellsThatAreTotal.push(roomTotalCell)
     }
   }
   initWorkBook(){

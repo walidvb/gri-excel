@@ -1,19 +1,19 @@
 
 const http = require('http'),
-    url = require('url'),
-    path = require('path'),
     fs = require('fs');
 
-const processPost = require('./processPost')
+const processPostRequest = require('./processPostRequest')
 const excelor = require('./excel')
 const port = 7000
 
-const requestHandler = (req, res) => processPost(req, res, () => {
+const requestHandler = (req, res) => processPostRequest(req, res, () => {
   const project = req.post
+  console.log('Received', project)
   if (project.version){
       respondWithXls(project, res)
   }
   else{
+    console.log('Project was missing version', project)
     res.writeHead(400)
     res.end()
   }
@@ -23,6 +23,7 @@ const server = http.createServer((res, ...args) => {
   try{
     requestHandler(res, ...args)
   } catch(err){
+    console.log('Error with handler', err)
     res.writeHead(500)
     res.write(JSON.stringify(err))
     res.end()
