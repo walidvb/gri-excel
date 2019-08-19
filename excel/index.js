@@ -33,7 +33,7 @@ class Excelor{
   addInfo(){
     this.addHeader()
     this.rooms.forEach(this.addRoom.bind(this))
-    // addTotal(sheet)
+    this.addTotals()
   }
   addColumnNames(){
     this.sheet.addRow(COLUMNS);
@@ -80,7 +80,9 @@ class Excelor{
       const totalCol = colToLetter(this.sheet.getColumn('total')._number)
       const formula = `SUM(${totalCol}${firstRoomRow}:${totalCol}${lastRoomRow})`
       const row = this.sheet.lastRow
-      row.getCell('total').value = { formula };
+      const roomTotalCell = row.getCell('total')
+      roomTotalCell.value = { formula };
+      this.cellsThatAreTotal.push(roomTotalCell)
     }
     function addRoomTitle(){
       this.sheet.addRow(['', name])
@@ -103,10 +105,16 @@ class Excelor{
       const row = this.sheet.lastRow
       const priceFormula = `${row.getCell('quantity')._address} * ${row.getCell('unit_price')._address}`
       const totalFormula = `MAX(${priceFormula}, ${price})`
-      const roomTotalCell = row.getCell('total')
-      roomTotalCell.value = { formula: totalFormula }
-      this.cellsThatAreTotal.push(roomTotalCell)
+      const stepTotalCell = row.getCell('total')
+      stepTotalCell.value = { formula: totalFormula }
     }
+  }
+  addTotals(){
+    this.sheet.addRow(['', '', '', '', 'Total', ''])
+    const formula = `SUM(${this.cellsThatAreTotal.map(c => c._address).join(',')})`
+    const row = this.sheet.lastRow
+    row.getCell('total').value = { formula };
+
   }
   initWorkBook(){
     var workbook = new Excel.Workbook();
