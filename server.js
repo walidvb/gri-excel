@@ -19,11 +19,12 @@ const requestHandler = (req, res) => processPost(req, res, () => {
   }
 })
 
-const server = http.createServer((...args) => {
+const server = http.createServer((res, ...args) => {
   try{
-    requestHandler(...args)
+    requestHandler(res, ...args)
   } catch(err){
     res.writeHead(500)
+    res.write(JSON.stringify(err))
     res.end()
   }
 })
