@@ -42,8 +42,8 @@ async function respondWithXls(project, res){
   fs.exists(fileName, function (exists) {
     if (!exists) {
       console.log("not exists: " + fileName);
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.write('404 Not Found\n');
+      res.writeHead(500, { 'Content-Type': 'text/plain' });
+      res.write('500 File not found on disk\n');
       res.end();
     }
     console.log('returning file')

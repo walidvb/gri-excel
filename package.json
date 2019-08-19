@@ -1,0 +1,25 @@
+{
+  "name": "gri-excel",
+  "version": "1.0.0",
+  "description": "Return an excel file from input",
+  "main": "server.js",
+  "dependencies": {
+    "exceljs": "^1.15.0",
+    "querystring": "^0.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/walidvb/gri-excel.git"
+  },
+  "author": "walidvb",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/walidvb/gri-excel/issues"
+  },
+  "homepage": "https://github.com/walidvb/gri-excel#readme"
+}
