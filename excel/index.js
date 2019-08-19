@@ -23,13 +23,31 @@ class Excelor{
     this.cellsThatAreTotal = []
   }
   async createDocument(){
+    const { id: pID, version: { vID}} = this.project
+    this.id = `${pID}-${vID}`
     this.initWorkBook()
     this.sheet = this.workbook.addWorksheet('My Sheet', {
       pageSetup: { fitToPage: true, fitToHeight: 5, fitToWidth: 7,
         showGridLines: false, 
         printTitlesRow: '1:1',
-      }
+        margins: {
+          left: 0.3, right: 0.3,
+          top: 0.75, bottom: 0.75,
+          header: 0.1, footer: 0.1
+        }
+      },
+      headerFooter: {
+        oddHeader: `GRI - ${this.id}`,
+      },
+
     })
+    this.sheet.pageSetup.margins = {
+      left: 0.7, right: 0.7,
+        top: 0.75, bottom: 0.75,
+          header: 0.3, footer: 0.3
+    }
+    this.sheet.headerFooter.oddHeader = this.id;
+
     this.sheet.properties.defaultRowHeight = 15
     this.sheet.columns = COLUMNS
     this.addInfo()
@@ -48,8 +66,8 @@ class Excelor{
     this.sheet.addRow(COLUMNS.map(c => c.header));
   }
   addHeader(){
-    const { title, id: pID,
-      version: { version_reference: vID, created_at },
+    const { title,
+      version: { created_at },
       agent_name = 'GRI', agent_number = "022 347 84 84"
     } = this.project
 
@@ -58,7 +76,7 @@ class Excelor{
     addDetails = addDetails.bind(this)
     addDetails('TVA CHE 110.257.937')
     this.addEmptyRow()
-    addDetails(`OFFRE N: ${pID}-${vID}`,'', `Genève, le ${date}` )
+    addDetails(`OFFRE N: ${this.id}`,'', `Genève, le ${date}` )
     this.addEmptyRow()
     addDetails(`CONCERNE: ${title}`)
     this.addEmptyRow()
@@ -99,14 +117,22 @@ class Excelor{
       const totalCol = colToLetter(this.sheet.getColumn('total')._number)
       const formula = `SUM(${totalCol}${firstRoomRow}:${totalCol}${lastRoomRow})`
       const cell = this.addFormula(formula, 'Sous-total', { border: { top: 'thick', color: '#FF000'}})
+      cell.border = { top: 'thick', color: '#FF0000'}
       this.cellsThatAreTotal.push(cell)
     }
 
     function addRoomTitle(){
-      this.sheet.addRow(['', name])
+      this.sheet.addRow(['', name.toUpperCase()])
       const row = this.sheet.lastRow
       const number = row._number
       row.font = { bold: true }
+      row._cells.forEach(c => {
+        c.fill = {
+          type: 'pattern',
+          pattern: 'lightGray',
+          fgColor: '#FF0000'
+        }
+      })
       this.sheet.mergeCells(`B${number}:${LAST_COL}${number}`)
     }
 
@@ -152,18 +178,17 @@ class Excelor{
         "",
     ]
     addLine = addLine.bind(this)
-
-    terms.forEach(t => addLine(t, { bold: true }))
+    addLine(terms.join('\n'), { font: { bold: true }, height: 100 })
     this.addEmptyRow()
-    notes.forEach(t => addLine(t, { bold: true }))
+    addLine(notes.join('\n'), { font: { bold: true}, height: 60 })
     this.addEmptyRow()
     this.addEmptyRow()
     addLine(
       "En cas d'acceptation, nous vous remercions de nous retourner la copie de ce devis datée et signée et portant la mention manuscrite \"Bon pour accord et travaux\".",
-      { italic: true, size: 10 }
+      { font: { italic: true, size: 10 }, height: 30 }
       )
     this.addEmptyRow()
-    addLine("BON POUR ACCORD", { bold: true })
+    addLine("BON POUR ACCORD", { font: { bold: true } })
     this.addEmptyRow()
     this.sheet.addRow(['', 'Signature', 'Genève, le'])
 
@@ -173,16 +198,18 @@ class Excelor{
     
     addLine(
       "Selon la loi fédérale contre la concurrence déloyale, l'utilisation ou reproduction du devis sont strictement interdites sans l'autorisation écrite de l'entreprise.",
-      { italic: true, size: 10 }
+      { font: { italic: true, size: 10 }, height: 30 }
       )
     this.addEmptyRow()
     addLine("Payable à:  UBS -  IBAN CH05 0024 0240 3998 0401F")
 
-    function addLine(text, font){
+    function addLine(text, format){
       this.sheet.addRow(['', text])
       const lastRow = this.sheet.lastRow
       this.merge('B', LAST_COL)
-      lastRow.font = font
+      for(let key in format){
+        lastRow[key] = format[key]
+      }
       lastRow.alignment = { wrapText: true }
       return lastRow
     }
