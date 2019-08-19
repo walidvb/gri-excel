@@ -5,19 +5,19 @@ const { computeStepPrice } =  require('./pricing');
 //const data = require('./data')
 
 const COLUMNS = [
- {header: 'No', key: 'no', width: 10},
- {header: 'Descriptif', key: 'description', width: 40},
+ {header: 'No', key: 'no', width: 5},
+ {header: 'Descriptif', key: 'description', width: 70},
  {header: 'Quantité', key: 'quantity', width: 10},
  {header: 'Mesure', key: 'unit', width: 10},
- {header: 'Prix Unitaire', key: 'unit_price', width: 20},
- {header: 'Total', key: 'total', width: 20}
+ {header: 'Prix Unitaire', key: 'unit_price', width: 10},
+ {header: 'Total', key: 'total', width: 10}
 ]
 const colToLetter = (n) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[n-1]
 const LAST_COL = colToLetter(COLUMNS.length)
 
 class Excelor{
   constructor(data){
-    this.data = data
+    this.project = data
     this.rooms = data.version.rooms
     this.date = data.version.created_at
     this.cellsThatAreTotal = []
@@ -25,7 +25,10 @@ class Excelor{
   async createDocument(){
     this.initWorkBook()
     this.sheet = this.workbook.addWorksheet('My Sheet', {
-      pageSetup: { fitToPage: true, fitToHeight: 5, fitToWidth: 7 }
+      pageSetup: { fitToPage: true, fitToHeight: 5, fitToWidth: 7,
+        showGridLines: false, 
+        printTitlesRow: '1:1',
+      }
     })
     this.sheet.properties.defaultRowHeight = 15
     this.sheet.columns = COLUMNS
@@ -36,23 +39,36 @@ class Excelor{
   }
   addInfo(){
     this.addHeader()
+    this.addColumnNames()
     this.rooms.forEach(this.addRoom.bind(this))
     this.addTotals()
     this.addFooter()
   }
   addColumnNames(){
-    this.sheet.addRow(COLUMNS);
+    this.sheet.addRow(COLUMNS.map(c => c.header));
   }
   addHeader(){
+    const { title, id: pID,
+      version: { version_reference: vID, created_at },
+      agent_name = 'GRI', agent_number = "022 347 84 84"
+    } = this.project
+
+    const date = new Date(created_at).toLocaleDateString('fr')
     addImage.call(this)
     addDetails = addDetails.bind(this)
-    addDetails('TVA: ')
-    addDetails('OFFRE N: ','', 'Date' )
-    addDetails('CONCERNE: ')
-    addDetails('Adresse: ')
+    addDetails('TVA CHE 110.257.937')
+    this.addEmptyRow()
+    addDetails(`OFFRE N: ${pID}-${vID}`,'', `Genève, le ${date}` )
+    this.addEmptyRow()
+    addDetails(`CONCERNE: ${title}`)
+    this.addEmptyRow()
+    addDetails(`Adresse: ${agent_name}`)
     addDetails('Contact: ')
-    addDetails('Selon votre demande de devis No: ')
-    addDetails('Vos Contact: ')
+    this.addEmptyRow()
+    // addDetails('Selon votre demande de devis No: ')
+    addDetails(`Vos Contact: ${agent_number}`)
+    this.addEmptyRow()
+    this.addEmptyRow()
 
     function addDetails(...details){
       this.sheet.addRow(details)
@@ -80,14 +96,12 @@ class Excelor{
     addTotal.call(this)
 
     function addTotal(){
-      this.sheet.addRow(['','','','','Total', ''])
       const totalCol = colToLetter(this.sheet.getColumn('total')._number)
       const formula = `SUM(${totalCol}${firstRoomRow}:${totalCol}${lastRoomRow})`
-      const row = this.sheet.lastRow
-      const roomTotalCell = row.getCell('total')
-      roomTotalCell.value = { formula };
-      this.cellsThatAreTotal.push(roomTotalCell)
+      const cell = this.addFormula(formula, 'Sous-total', { border: { top: 'thick', color: '#FF000'}})
+      this.cellsThatAreTotal.push(cell)
     }
+
     function addRoomTitle(){
       this.sheet.addRow(['', name])
       const row = this.sheet.lastRow
@@ -95,6 +109,7 @@ class Excelor{
       row.font = { bold: true }
       this.sheet.mergeCells(`B${number}:${LAST_COL}${number}`)
     }
+
     function addStep(step) {
       const { id, quantity, unit_price, description, unit, price } = step
       const stepRow = [
@@ -189,13 +204,16 @@ class Excelor{
   addEmptyRow(){
     this.sheet.addRow()
   }
-  addFormula(formula, text="Total"){
+  addFormula(formula, text="Total", styles = {}){
     this.sheet.addRow(['', '', '', '', text, ''])
     const row = this.sheet.lastRow
     const cell = row.getCell('total')
     cell.value = { formula };
     cell.font = { bold: true}
     row.alignment = { vertical: 'bottom', horizontal: 'right' };
+    for(let key in styles){
+      cell[key] = styles[key]
+    }
     return cell
   }
 }
