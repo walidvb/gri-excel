@@ -59,7 +59,11 @@ class Excelor{
     this.addHeader()
     this.addColumnNames()
     this.rooms.forEach(this.addRoom.bind(this))
+    this.addEmptyRow()
+    this.addEmptyRow()
     this.addTotals()
+    this.addEmptyRow()
+    this.addEmptyRow()
     this.addFooter()
   }
   addColumnNames(){
@@ -159,6 +163,7 @@ class Excelor{
     const ht = this.addFormula(total, 'TOTAL H.T')
     const tvaForm = `${ht._address}*7.7%`
     const tva = this.addFormula(tvaForm, 'T.V.A. 7.7%')
+    this.addEmptyRow()
     const ttcForm = `${ht._address}+${tva._address}`
     this.addFormula(ttcForm, 'TOTAL T.T.C.')
   }
