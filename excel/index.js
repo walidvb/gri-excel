@@ -146,7 +146,7 @@ class Excelor{
       const stepRow = [
         ++this.currentStepIndex,
         description,
-        quantity,
+        parseInt(quantity),
         unit,
         price,
         ''
