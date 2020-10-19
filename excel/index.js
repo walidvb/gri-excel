@@ -21,7 +21,7 @@ class Excelor{
     this.rooms = data.version.rooms
     this.date = data.version.created_at
     this.cellsThatAreTotal = []
-    this.currentStepIndex = 0
+    this.currentStepIndex = 1
   }
   async createDocument(){
     const { id: pID, version: { vID}} = this.project
@@ -130,7 +130,7 @@ class Excelor{
       this.sheet.addRow(['', name.toUpperCase()])
       const row = this.sheet.lastRow
       const number = row._number
-      row.font = { bold: true }
+      // row.font = { bold: true }
       row._cells.forEach(c => {
         c.fill = {
           type: 'pattern',
@@ -142,9 +142,9 @@ class Excelor{
     }
 
     function addStep(step) {
-      const { id, quantity, min_price, description, unit, price } = step
+      const { quantity, min_price, description, unit, price } = step
       const stepRow = [
-        ++this.currentStepIndex,
+        this.currentStepIndex,
         description,
         parseInt(quantity),
         unit,
@@ -160,7 +160,7 @@ class Excelor{
       const blockOrUnitFormula = `IF(${priceFormula} < ${min_price}, "bloc", "${unit}")`
       const unitCell = row.getCell('unit')
       unitCell.value = { formula: blockOrUnitFormula }
-
+      this.currentStepIndex++
     }
   }
   addTotals(){
