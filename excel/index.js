@@ -21,6 +21,7 @@ class Excelor{
     this.rooms = data.version.rooms
     this.date = data.version.created_at
     this.cellsThatAreTotal = []
+    this.currentStepIndex = 0
   }
   async createDocument(){
     const { id: pID, version: { vID}} = this.project
@@ -143,7 +144,7 @@ class Excelor{
     function addStep(step) {
       const { id, quantity, min_price, description, unit, price } = step
       const stepRow = [
-        id,
+        ++this.currentStepIndex,
         description,
         quantity,
         unit,
