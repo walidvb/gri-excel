@@ -9,7 +9,7 @@ const COLUMNS = [
  {header: 'Descriptif', key: 'description', width: 70},
  {header: 'Quantité', key: 'quantity', width: 10},
  {header: 'Mesure', key: 'unit', width: 10},
- {header: 'Prix Unitaire', key: 'unit_price', width: 10},
+ {header: 'Prix Unitaire', key: 'price', width: 10},
  {header: 'Total', key: 'total', width: 10}
 ]
 const colToLetter = (n) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[n-1]
@@ -141,21 +141,25 @@ class Excelor{
     }
 
     function addStep(step) {
-      const { id, quantity, unit_price, description, unit, price } = step
+      const { id, quantity, min_price, description, unit, price } = step
       const stepRow = [
         id,
         description,
         quantity,
         unit,
-        unit_price,
+        price,
         ''
       ]
       this.sheet.addRow(stepRow)
       const row = this.sheet.lastRow
-      const priceFormula = `${row.getCell('quantity')._address} * ${row.getCell('unit_price')._address}`
-      const totalFormula = `MAX(${priceFormula}, ${price})`
+      const priceFormula = `${row.getCell('quantity')._address} * ${row.getCell('price')._address}`
+      const totalFormula = `MAX(${priceFormula}, ${min_price})`
       const stepTotalCell = row.getCell('total')
       stepTotalCell.value = { formula: totalFormula }
+      const blockOrUnitFormula = `IF(${priceFormula} < ${min_price}, "bloc", "${unit}")`
+      const unitCell = row.getCell('unit')
+      unitCell.value = { formula: blockOrUnitFormula }
+
     }
   }
   addTotals(){
