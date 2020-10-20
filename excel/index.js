@@ -73,7 +73,7 @@ class Excelor{
   addHeader(){
     const { title,
       version: { created_at },
-      agent_name = 'GRI', agent_number = "022 347 84 84"
+      agent_name = 'GRI', agent_number = "022 347 84 84",
     } = this.project
 
     const date = new Date(created_at).toLocaleDateString('fr')
@@ -86,7 +86,7 @@ class Excelor{
     addDetails(`CONCERNE: ${title}`)
     this.addEmptyRow()
     addDetails(`Adresse: ${agent_name}`)
-    addDetails('Contact: ')
+    // addDetails(`Contact: `)
     this.addEmptyRow()
     // addDetails('Selon votre demande de devis No: ')
     addDetails(`Vos Contact: ${agent_number}`)
