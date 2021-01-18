@@ -142,11 +142,17 @@ class Excelor{
     }
 
     function addStep(step) {
-      const { quantity, min_price, description, unit, price } = step
+      const { 
+        quantity, 
+        min_price = 0, 
+        description, 
+        unit, 
+        price 
+      } = step
       const stepRow = [
         this.currentStepIndex,
         description,
-        parseInt(quantity),
+        parseFloat(quantity),
         unit,
         price,
         ''
