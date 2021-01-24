@@ -129,7 +129,7 @@ class Excelor{
     }
 
     function addRoomTitle(){
-      this.sheet.addRow(['', name.toUpperCase()])
+      this.sheet.addRow(['', (name || 'Sans titre').toUpperCase()])
       const row = this.sheet.lastRow
       const number = row._number
       // row.font = { bold: true }
