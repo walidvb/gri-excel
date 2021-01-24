@@ -10,7 +10,7 @@ const COLUMNS = [
  {header: 'Quantité', key: 'quantity', width: 10},
  {header: 'Mesure', key: 'unit', width: 10},
  {header: 'Prix Unitaire', key: 'price', width: 10},
- {header: 'Total', key: 'total', width: 10}
+ {header: 'Total', key: 'total', width: 10},
 ]
 const colToLetter = (n) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[n-1]
 const LAST_COL = colToLetter(COLUMNS.length)
@@ -74,6 +74,7 @@ class Excelor{
     const { title,
       version: { created_at },
       agent_name = 'GRI', agent_number = "022 347 84 84",
+      based_on_your_request,
     } = this.project
 
     const date = new Date(created_at).toLocaleDateString('fr')
@@ -86,9 +87,9 @@ class Excelor{
     addDetails(`CONCERNE: ${title}`)
     this.addEmptyRow()
     addDetails(`Adresse: ${agent_name}`)
-    // addDetails(`Contact: `)
+    addDetails(`Contact: `)
     this.addEmptyRow()
-    // addDetails('Selon votre demande de devis No: ')
+    based_on_your_request && addDetails(`Selon votre demande de devis No: ${based_on_your_request}`)
     addDetails(`Vos Contact: ${agent_number}`)
     this.addEmptyRow()
     this.addEmptyRow()
@@ -234,9 +235,9 @@ class Excelor{
     var workbook = new Excel.Workbook();
     workbook.creator = 'Me';
     workbook.lastModifiedBy = 'Her';
-    workbook.created = new Date(1985, 8, 30);
+    workbook.created = new Date();
     workbook.modified = new Date();
-    workbook.lastPrinted = new Date(2016, 9, 27);
+    workbook.lastPrinted = new Date();
     this.workbook = workbook
   }
   merge(from, to){
