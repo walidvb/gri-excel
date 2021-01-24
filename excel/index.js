@@ -9,11 +9,12 @@ const COLUMNS = [
  {header: 'Descriptif', key: 'description', width: 70},
  {header: 'Quantité', key: 'quantity', width: 10},
  {header: 'Mesure', key: 'unit', width: 10},
- {header: 'Prix Unitaire', key: 'price', width: 10},
+ {header: 'Prix Unitaire', key: 'price_display', width: 10},
  {header: 'Total', key: 'total', width: 10},
+ {header: '', key: 'price', width: 10},
 ]
 const colToLetter = (n) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[n-1]
-const LAST_COL = colToLetter(COLUMNS.length)
+const LAST_COL = colToLetter(COLUMNS.length - 1)
 
 class Excelor{
   constructor(data){
@@ -150,21 +151,33 @@ class Excelor{
         unit, 
         price 
       } = step
+    
       const stepRow = [
         this.currentStepIndex,
         description,
         parseFloat(quantity),
         unit,
         price,
-        ''
+        '',
+        price
       ]
+
       this.sheet.addRow(stepRow)
       const row = this.sheet.lastRow
-      const priceFormula = `${row.getCell('quantity')._address} * ${row.getCell('price')._address}`
-      const totalFormula = `MAX(${priceFormula}, ${min_price})`
+
+      const descCell = row.getCell('description')
+      descCell.wrapText = true
+
+      const priceDisplayCell = row.getCell('price_display')
+      const priceCell = row.getCell('price')
       const stepTotalCell = row.getCell('total')
+      const priceFormula = `${row.getCell('quantity')._address} * ${priceCell._address}`
+      const priceDisplayFormula = `IF(${priceFormula} <= ${min_price}, ${stepTotalCell._address}, ${priceCell._address})`
+      priceDisplayCell.value = { formula: priceDisplayFormula }
+
+      const totalFormula = `MAX(${priceFormula}, ${min_price})`
       stepTotalCell.value = { formula: totalFormula }
-      const blockOrUnitFormula = `IF(${priceFormula} < ${min_price}, "bloc", "${unit}")`
+      const blockOrUnitFormula = `IF(${priceFormula} <= ${min_price}, "bloc", "${unit}")`
       const unitCell = row.getCell('unit')
       unitCell.value = { formula: blockOrUnitFormula }
       this.currentStepIndex++
@@ -253,7 +266,7 @@ class Excelor{
     const row = this.sheet.lastRow
     const cell = row.getCell('total')
     cell.value = { formula };
-    cell.font = { bold: true}
+    cell.font = { bold: true }
     row.alignment = { vertical: 'bottom', horizontal: 'right' };
     for(let key in styles){
       cell[key] = styles[key]
