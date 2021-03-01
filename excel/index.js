@@ -171,7 +171,12 @@ class Excelor{
       const priceDisplayCell = row.getCell('price_display')
       const priceCell = row.getCell('price')
       const stepTotalCell = row.getCell('total')
-      const priceFormula = `${row.getCell('quantity')._address} * ${priceCell._address}`
+      const qtyCell = row.getCell('quantity')
+      const isInBlocks = quantity * price <= min_price
+      if(isInBlocks){
+        qtyCell.value = 1
+      }
+      const priceFormula = `${qtyCell._address} * ${priceCell._address}`
       const priceDisplayFormula = `IF(${priceFormula} <= ${min_price}, ${stepTotalCell._address}, ${priceCell._address})`
       priceDisplayCell.value = { formula: priceDisplayFormula }
 
