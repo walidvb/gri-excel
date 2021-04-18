@@ -196,7 +196,14 @@ class Excelor{
       if(isInBlocks){
         qtyCell.value = 1
       }
+
       const priceFormula = `${qtyCell._address} * ${priceCell._address}`
+      priceCell.font = {
+        color: { argb: 'FFFFFFFF' }
+      }
+      // if the min_price is not reached, then we should display
+      // the min_price in the price column – therefore we need to keep 
+      // the step's price in the sheet
       const priceDisplayFormula = `IF(${priceFormula} <= ${min_price}, ${stepTotalCell._address}, ${priceCell._address})`
       priceDisplayCell.value = { formula: priceDisplayFormula }
 
