@@ -312,6 +312,7 @@ class Excelor{
     const cell = row.getCell('total')
     cell.value = { formula };
     cell.font = { bold: true }
+    cell.numFmt = "#,###0.##"
     row.alignment = { vertical: 'bottom', horizontal: 'right' };
     for(let key in styles){
       cell[key] = styles[key]
