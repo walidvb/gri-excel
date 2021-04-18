@@ -121,6 +121,7 @@ class Excelor{
     const lastRoomRow = this.sheet.lastRow._number
     addTotal.call(this)
 
+    this.addEmptyRow()
     function addTotal(){
       const totalCol = colToLetter(this.sheet.getColumn('total')._number)
       const formula = `SUM(${totalCol}${firstRoomRow}:${totalCol}${lastRoomRow})`
@@ -134,14 +135,13 @@ class Excelor{
       const row = this.sheet.lastRow
       const number = row._number
       // row.font = { bold: true }
-      row._cells.forEach(c => {
-        c.fill = {
-          type: 'pattern',
-          pattern: 'lightGray',
-          fgColor: '#FF0000'
-        }
-      })
       this.sheet.mergeCells(`B${number}:${LAST_COL}${number}`)
+      const mergedCell = row._cells[1]
+      mergedCell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'DDDDDD' },
+      }
     }
 
     function maybeAddStepCategory(step){
@@ -154,10 +154,9 @@ class Excelor{
       const number = row._number
       // row.font = { bold: true }
       row._cells.forEach(c => {
-        c.fill = {
-          type: 'pattern',
-          pattern: 'lightGray',
-          fgColor: '#FF0000'
+        c.font = {
+          bold: true,
+          underline: true,
         }
       })
       this.sheet.mergeCells(`B${number}:${LAST_COL}${number}`)
