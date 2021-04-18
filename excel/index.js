@@ -50,7 +50,7 @@ class Excelor{
     this.sheet.properties.defaultRowHeight = 15
     this.sheet.columns = COLUMNS
     this.addInfo()
-    const filename = "now.xls"
+    const filename = "now.xlsx"
     await this.workbook.xlsx.writeFile(filename)
     return filename
   }
