@@ -113,9 +113,13 @@ class Excelor{
       this.sheet.addImage(banner, `A1:${LAST_COL}5`)
     }
   }
-  addRoom({ name, steps }){ 
+  addRoom({ name, steps }){
+    if(!steps.length){
+      return
+    }
     addRoomTitle.call(this)
     const firstRoomRow = this.sheet.lastRow._number + 1
+    let lastCategoryPrinted
     steps.forEach(addStep.bind(this))
     const lastRoomRow = this.sheet.lastRow._number
     addTotal.call(this)
@@ -143,6 +147,25 @@ class Excelor{
       this.sheet.mergeCells(`B${number}:${LAST_COL}${number}`)
     }
 
+    function maybeAddStepCategory(step){
+      const { category } = step
+      if (lastCategoryPrinted === category){
+        return
+      }
+      this.sheet.addRow(['', (category || 'Autre')])
+      const row = this.sheet.lastRow
+      const number = row._number
+      // row.font = { bold: true }
+      row._cells.forEach(c => {
+        c.fill = {
+          type: 'pattern',
+          pattern: 'lightGray',
+          fgColor: '#FF0000'
+        }
+      })
+      this.sheet.mergeCells(`B${number}:${LAST_COL}${number}`)
+      lastCategoryPrinted = category
+    }
     function addStep(step) {
       const { 
         quantity, 
@@ -151,7 +174,7 @@ class Excelor{
         unit, 
         price 
       } = step
-    
+      maybeAddStepCategory.call(this,step)
       const stepRow = [
         this.currentStepIndex,
         description,
