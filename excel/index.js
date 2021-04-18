@@ -121,7 +121,7 @@ class Excelor{
     const lastRoomRow = this.sheet.lastRow._number
     addTotal.call(this)
 
-    this.addEmptyRow()
+    this.addEmptyRow(2)
     function addTotal(){
       const totalCol = colToLetter(this.sheet.getColumn('total')._number)
       const formula = `SUM(${totalCol}${firstRoomRow}:${totalCol}${lastRoomRow})`
@@ -149,6 +149,7 @@ class Excelor{
       if (lastCategoryPrinted === category){
         return
       }
+      this.addEmptyRow()
       this.sheet.addRow(['', (category || 'Autre')])
       const row = this.sheet.lastRow
       const number = row._number
@@ -207,7 +208,7 @@ class Excelor{
 
       row.eachCell({ includeEmpty: true }, c => {
         c.alignment = {
-          vertical: 'middle',
+          vertical: 'top',
           wrapText: true
         }
       })
@@ -289,8 +290,10 @@ class Excelor{
     this.sheet.mergeCells(`${from}${lastRow._number}:${to}${lastRow._number}`)
     return lastRow
   }
-  addEmptyRow(){
-    this.sheet.addRow()
+  addEmptyRow(count = 1){
+    for(let i = count; i > 0; i--){
+      this.sheet.addRow()
+    }
   }
   addFormula(formula, text="Total", styles = {}){
     this.sheet.addRow(['', '', '', '', text, ''])
