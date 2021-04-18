@@ -67,6 +67,10 @@ class Excelor{
   }
   addColumnNames(){
     this.sheet.addRow(COLUMNS.map(c => c.header));
+    this.sheet.lastRow.font = {
+      color: { argb: 'FF444444'},
+      size: 9,
+    }
   }
   addHeader(){
     const { title,
