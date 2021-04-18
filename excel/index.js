@@ -1,8 +1,5 @@
-const Excel = require('exceljs/modern.nodejs');
+const Excel = require('exceljs');
 const fs = require('fs');
-
-const { computeStepPrice } =  require('./pricing');
-//const data = require('./data')
 
 const COLUMNS = [
  {header: 'No', key: 'no', width: 5},
@@ -208,6 +205,13 @@ class Excelor{
       const blockOrUnitFormula = `IF(${priceFormula} <= ${min_price}, "bloc", "${unit}")`
       const unitCell = row.getCell('unit')
       unitCell.value = { formula: blockOrUnitFormula }
+
+      row.eachCell({ includeEmpty: true }, c => {
+        c.alignment = {
+          vertical: 'middle',
+          wrapText: true
+        }
+      })
       this.currentStepIndex++
     }
   }

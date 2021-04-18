@@ -4,7 +4,7 @@
   "description": "Return an excel file from input",
   "main": "server.js",
   "dependencies": {
-    "exceljs": "^1.15.0",
+    "exceljs": "^4.2.1",
     "querystring": "^0.2.0"
   },
   "devDependencies": {},
