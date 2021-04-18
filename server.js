@@ -41,8 +41,8 @@ server.listen(port, (err) => {
 
 async function respondWithXls(project, res){
   const fileName = await new excelor(project).createDocument()
-  fs.exists(fileName, function (exists) {
-    if (!exists) {
+  fs.stat(fileName, function (err, stat) {
+    if (err) {
       console.log("not exists: " + fileName);
       res.writeHead(500, { 'Content-Type': 'text/plain' });
       res.write('500 File not found on disk\n');
@@ -50,7 +50,7 @@ async function respondWithXls(project, res){
     }
     console.log('returning file')
     res.writeHead(200, {
-      'Content-Type': 'application/vnd.ms-excel',
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       "Content-Disposition": "attachment; filename=" + fileName
     });
 
