@@ -129,7 +129,7 @@ class Excelor{
     function addTotal(){
       const totalCol = colToLetter(this.sheet.getColumn('total')._number)
       const formula = `SUM(${totalCol}${firstRoomRow}:${totalCol}${lastRoomRow})`
-      const cell = this.addFormula(formula, 'Sous-total', { border: { top: 'thick', color: '#FF000'}})
+      const cell = this.addFormula(formula, 'Sous-total', { border: { top: 'thick', color: { argb: '#FF000' }}})
       cell.border = { top: 'thick', color: '#FF0000'}
       this.cellsThatAreTotal.push(cell)
     }
