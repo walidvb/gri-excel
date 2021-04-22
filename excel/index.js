@@ -15,14 +15,18 @@ const LAST_COL = colToLetter(COLUMNS.length - 1)
 
 class Excelor{
   constructor(data){
-    this.project = data
-    this.rooms = data.version.rooms
-    this.date = data.version.created_at
+    const { version, user, ...project } = data
+    this.project = project
+    this.user = user
+    this.version = version
+    this.rooms = version.rooms
+    this.date = version.created_at
     this.cellsThatAreTotal = []
     this.currentStepIndex = 1
   }
   async createDocument(){
-    const { id: pID, version: { vID}} = this.project
+    const { id: pID } = this.project
+    const { vID } = this.version
     this.id = `${pID}-${vID}`
     this.initWorkBook()
     this.sheet = this.workbook.addWorksheet('My Sheet', {
@@ -74,25 +78,32 @@ class Excelor{
   }
   addHeader(){
     const { title,
-      version: { created_at },
-      agent_name = 'GRI', agent_number = "022 347 84 84",
+      internal_id = '',
+      address = '',
+      clientName = '',
+      details,
+      provider_name,
       based_on_your_request,
     } = this.project
-
+    const { created_at } = this.version
+  
     const date = new Date(created_at).toLocaleDateString('fr')
     addImage.call(this)
     addDetails = addDetails.bind(this)
     addDetails('TVA CHE 110.257.937')
     this.addEmptyRow()
-    addDetails(`OFFRE N: ${this.id}`,'', `Genève, le ${date}` )
+    addDetails(`OFFRE N: ${internal_id}`,'', `Genève, le ${date}` )
     this.addEmptyRow()
     addDetails(`CONCERNE: ${title}`)
     this.addEmptyRow()
-    addDetails(`Adresse: ${agent_name}`)
-    addDetails(`Contact: `)
+    addDetails(`Adresse: ${address}`, '', `${provider_name}`)
+    addDetails(`Contact: ${clientName}`)
     this.addEmptyRow()
     based_on_your_request && addDetails(`Selon votre demande de devis No: ${based_on_your_request}`)
-    addDetails(`Vos Contact: ${agent_number}`)
+    details && addDetails(`${details}`)
+
+    const contact = [this.user.name, this.user.phone].filter(Boolean).join(' | ')
+    addDetails(`Vos Contact: ${contact}`)
     this.addEmptyRow()
     this.addEmptyRow()
 
