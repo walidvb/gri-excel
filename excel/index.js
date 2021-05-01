@@ -209,12 +209,13 @@ class Excelor{
         min_price = 0, 
         description, 
         unit, 
-        price 
+        price,
+        note
       } = step
       maybeAddStepCategory.call(this,step)
       const stepRow = [
         this.currentStepIndex,
-        description,
+        [description, note].filter(Boolean).join("\n"),
         parseFloat(quantity),
         unit,
         price,
