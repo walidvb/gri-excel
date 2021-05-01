@@ -16,7 +16,15 @@ const letterToNumber = (l) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.indexOf(l)
 const LAST_COL = colToLetter(COLUMNS.length - 1)
 
 const borderTop = { border: { top: { style: 'thin', color: { argb: '#DDDDDDDD' } } } }
+const border = (color = '#DDDDDDDD') =>  ({ border: ['top', 'bottom', 'left', 'right'].reduce((prev, curr) => ({ ...prev, [curr]: { style: 'thin', color: { argb: color } } }), {}) })
 const wrap = { alignment: { wrapText: true } }
+const fill = (color) => ({
+    fill: {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: color },
+    }
+})
 const formatCells = (format, row, range) => {
   const number = row._number
   const from = letterToNumber(range[0])
@@ -142,11 +150,16 @@ class Excelor{
       this.sheet.addImage(banner, `A1:${LAST_COL}5`)
     }
   }
-  addRoom({ name, steps }){
+  addRoom({ name, steps, note }){
     if(!steps.length){
       return
     }
     addRoomTitle.call(this)
+    if(note){
+      this.sheet.addRow()
+      this.sheet.addRow(['', note])
+      formatCells({ ...fill('EEEEEE'), ...border(), font: { italic: true, bold: true }}, this.sheet.lastRow, ['B', 'B'])
+    }
     const firstRoomRow = this.sheet.lastRow._number + 1
     let lastCategoryPrinted
     steps.forEach(addStep.bind(this))
@@ -166,16 +179,8 @@ class Excelor{
     function addRoomTitle(){
       this.sheet.addRow(['', (name || 'Sans titre').toUpperCase()])
       const row = this.sheet.lastRow
-      const number = row._number
-      // row.font = { bold: true }
-      const format = {
-        fill: {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'DDDDDD' },
-        }
-      }
-      formatCells(format, row, ['B', LAST_COL])
+      formatCells({...fill('DDDDDD'), font: { bold: true }}, row, ['B', LAST_COL])
+
     }
 
     function maybeAddStepCategory(step){
@@ -183,7 +188,9 @@ class Excelor{
       if (lastCategoryPrinted === category){
         return
       }
-      this.addEmptyRow()
+      if(lastCategoryPrinted){
+        this.addEmptyRow()
+      }
       this.sheet.addRow(['', (category || 'Autre')])
       const row = this.sheet.lastRow
       const number = row._number
