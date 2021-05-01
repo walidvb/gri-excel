@@ -14,6 +14,7 @@ const colToLetter = (n) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[n-1]
 const letterToNumber = (l) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.indexOf(l)
 const LAST_COL = colToLetter(COLUMNS.length - 1)
 
+const borderTop = { border: { top: { style: 'thin', color: { argb: '#DDDDDDDD' } } } }
 const formatCells = (format, row, range) => {
   const number = row._number
   const from = letterToNumber(range[0])
@@ -155,6 +156,7 @@ class Excelor{
       const cell = this.addFormula(formula, 'Sous-total', { border: { top: 'thick', color: { argb: '#FF000' }}})
       cell.border = { top: 'thick', color: { argb: '#FF0000' } }
       this.cellsThatAreTotal.push(cell)
+      formatCells(borderTop, this.sheet.lastRow, ['C', LAST_COL])
     }
 
     function addRoomTitle(){
@@ -257,6 +259,7 @@ class Excelor{
     this.addEmptyRow()
     const ttcForm = `${ht._address}+${tva._address}`
     this.addFormula(ttcForm, 'TOTAL T.T.C.')
+    formatCells(borderTop, this.sheet.lastRow, ['C', LAST_COL])
   }
   addFooter(){
     addLine = addLine.bind(this)
