@@ -11,8 +11,20 @@ const COLUMNS = [
  {header: '', key: 'price', width: 10},
 ]
 const colToLetter = (n) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[n-1]
+const letterToNumber = (l) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.indexOf(l)
 const LAST_COL = colToLetter(COLUMNS.length - 1)
 
+const formatCells = (format, row, range) => {
+  const number = row._number
+  const from = letterToNumber(range[0])
+  const to = letterToNumber(range[1])
+  for (let i = from; i <= to; i++){
+    const cell = row.getCell(colToLetter(i+1))
+    for(let f in format){
+      cell[f] = format[f]
+    }
+  }
+}
 class Excelor{
   constructor(data){
     const { version, user, ...project } = data
@@ -150,13 +162,14 @@ class Excelor{
       const row = this.sheet.lastRow
       const number = row._number
       // row.font = { bold: true }
-      this.sheet.mergeCells(`B${number}:${LAST_COL}${number}`)
-      const mergedCell = row._cells[1]
-      mergedCell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'DDDDDD' },
+      const format = {
+        fill: {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'DDDDDD' },
+        }
       }
+      formatCells(format, row, ['B', LAST_COL])
     }
 
     function maybeAddStepCategory(step){
