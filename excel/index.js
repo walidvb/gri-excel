@@ -1,5 +1,6 @@
 const Excel = require('exceljs');
 const fs = require('fs');
+const maybeAddDiscount = require('./addDiscounts')
 
 const COLUMNS = [
  {header: 'No', key: 'no', width: 5},
@@ -37,6 +38,8 @@ class Excelor{
     this.date = version.created_at
     this.cellsThatAreTotal = []
     this.currentStepIndex = 1
+
+    this.maybeAddDiscount = maybeAddDiscount.bind(this)
   }
   async createDocument(){
     const { id: pID } = this.project
@@ -253,12 +256,13 @@ class Excelor{
     }
   }
   addTotals(){
-    const total = `=CEILING(SUM(${this.cellsThatAreTotal.map(c => c._address).join(',')}), 0.05)`
+    const total = `CEILING(SUM(${this.cellsThatAreTotal.map(c => c._address).join(',')}), 0.05)`
     const ht = this.addFormula(total, 'TOTAL H.T')
     const tvaForm = `${ht._address}*7.7%`
+    this.maybeAddDiscount()
     const tva = this.addFormula(tvaForm, 'T.V.A. 7.7%')
     this.addEmptyRow()
-    const ttcForm = `${ht._address}+${tva._address}`
+    const ttcForm = `${this.lastTotalCell._address}+${tva._address}`
     this.addFormula(ttcForm, 'TOTAL T.T.C.')
     formatCells(borderTop, this.sheet.lastRow, ['C', LAST_COL])
   }
@@ -340,6 +344,7 @@ class Excelor{
     const row = this.sheet.lastRow
     const cell = row.getCell('total')
     cell.value = { formula };
+    this.lastTotalCell = cell
     cell.font = { bold: true }
     cell.numFmt = "#,###0.##"
     row.alignment = { vertical: 'bottom', horizontal: 'right' };
