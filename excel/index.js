@@ -15,6 +15,7 @@ const letterToNumber = (l) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.indexOf(l)
 const LAST_COL = colToLetter(COLUMNS.length - 1)
 
 const borderTop = { border: { top: { style: 'thin', color: { argb: '#DDDDDDDD' } } } }
+const wrap = { alignment: { wrapText: true } }
 const formatCells = (format, row, range) => {
   const number = row._number
   const from = letterToNumber(range[0])
@@ -307,13 +308,8 @@ class Excelor{
 
     function addLine(text, format){
       this.sheet.addRow(['', text])
-      const lastRow = this.sheet.lastRow
       this.merge('B', LAST_COL)
-      for(let key in format){
-        lastRow[key] = format[key]
-      }
-      lastRow.alignment = { wrapText: true }
-      return lastRow
+      formatCells({ ...format, ...wrap }, this.sheet.lastRow, ['B', 'B'])
     }
   }
   isProviderPrivate(){
