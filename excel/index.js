@@ -139,9 +139,9 @@ class Excelor{
     this.addEmptyRow(2)
     function addTotal(){
       const totalCol = colToLetter(this.sheet.getColumn('total')._number)
-      const formula = `SUM(${totalCol}${firstRoomRow}:${totalCol}${lastRoomRow})`
+      const formula = `CEILING(SUM(${totalCol}${firstRoomRow}:${totalCol}${lastRoomRow}), 0.05)`
       const cell = this.addFormula(formula, 'Sous-total', { border: { top: 'thick', color: { argb: '#FF000' }}})
-      cell.border = { top: 'thick', color: '#FF0000'}
+      cell.border = { top: 'thick', color: { argb: '#FF0000' } }
       this.cellsThatAreTotal.push(cell)
     }
 
@@ -172,10 +172,9 @@ class Excelor{
       row._cells.forEach(c => {
         c.font = {
           bold: true,
-          underline: true,
         }
       })
-      this.sheet.mergeCells(`B${number}:${LAST_COL}${number}`)
+      // this.sheet.mergeCells(`B${number}:${LAST_COL}${number}`)
       lastCategoryPrinted = category
     }
     function addStep(step) {
@@ -222,7 +221,7 @@ class Excelor{
       const priceDisplayFormula = `IF(${priceFormula} <= ${min_price}, ${stepTotalCell._address}, ${priceCell._address})`
       priceDisplayCell.value = { formula: priceDisplayFormula }
 
-      const totalFormula = `MAX(${priceFormula}, ${min_price})`
+      const totalFormula = `CEILING(MAX(${priceFormula}, ${min_price}), 0.05)`
       stepTotalCell.value = { formula: totalFormula }
       const blockOrUnitFormula = `IF(${priceFormula} <= ${min_price}, "bloc", "${unit}")`
       const unitCell = row.getCell('unit')
@@ -238,7 +237,7 @@ class Excelor{
     }
   }
   addTotals(){
-    const total = `SUM(${this.cellsThatAreTotal.map(c => c._address).join(',')})`
+    const total = `=CEILING(SUM(${this.cellsThatAreTotal.map(c => c._address).join(',')}), 0.05)`
     const ht = this.addFormula(total, 'TOTAL H.T')
     const tvaForm = `${ht._address}*7.7%`
     const tva = this.addFormula(tvaForm, 'T.V.A. 7.7%')
@@ -247,6 +246,7 @@ class Excelor{
     this.addFormula(ttcForm, 'TOTAL T.T.C.')
   }
   addFooter(){
+    // TODO only for Privé
     const terms = [
         'Ce devis a été établi sur la base des éléments dont nous disposons, ne sont pas compris tous travaux qui ne sont pas explicitement décrits.',
         "L'acceptation de ce devis implique l'entière compréhension des points énumérés.",
