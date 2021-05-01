@@ -246,25 +246,27 @@ class Excelor{
     this.addFormula(ttcForm, 'TOTAL T.T.C.')
   }
   addFooter(){
-    // TODO only for Privé
-    const terms = [
-        'Ce devis a été établi sur la base des éléments dont nous disposons, ne sont pas compris tous travaux qui ne sont pas explicitement décrits.',
-        "L'acceptation de ce devis implique l'entière compréhension des points énumérés.",
-        "Avant tout travaux de carrelage, un test amiante est nécessaire. En cas de présence de matériaux amiantés, les mesures nécessaires devront être prises pour l'élimination de ceux-ci.",
-        "Tous travaux de réfection, modification d'affectation ou de rénovations doivent être annoncés auprès du DCTI et des départements concernés. Le propriétaire s'engage à effectuer les démarches administratives lui-même ou par le biais d'un architecte. L'entreprise GRI ne serait être responsable en cas d'éventuel recours.",
-    ]
-    const notes = [
-        "Note:",
-        "Un premier acompte d'environ 30% du montant de l'adjudication sera demandé pour l'ouverture du chantier.",
-        "Un deuxième acompte sera demandé à la fin du premier tiers du chantier.",
-        "Un troisième acompte sera demandé à la fin du deuxième tiers du chantier.",
-        "Une facture du solde du montant final sera envoyée à la fin du chantier.",
-        "",
-    ]
     addLine = addLine.bind(this)
-    addLine(terms.join('\n'), { font: { bold: true }, height: 100 })
-    this.addEmptyRow()
-    addLine(notes.join('\n'), { font: { bold: true}, height: 60 })
+    if(this.isProviderPrivate()){
+      // TODO only for Privé
+      const terms = [
+          'Ce devis a été établi sur la base des éléments dont nous disposons, ne sont pas compris tous travaux qui ne sont pas explicitement décrits.',
+          "L'acceptation de ce devis implique l'entière compréhension des points énumérés.",
+          "Avant tout travaux de carrelage, un test amiante est nécessaire. En cas de présence de matériaux amiantés, les mesures nécessaires devront être prises pour l'élimination de ceux-ci.",
+          "Tous travaux de réfection, modification d'affectation ou de rénovations doivent être annoncés auprès du DCTI et des départements concernés. Le propriétaire s'engage à effectuer les démarches administratives lui-même ou par le biais d'un architecte. L'entreprise GRI ne serait être responsable en cas d'éventuel recours.",
+      ]
+      const notes = [
+          "Note:",
+          "Un premier acompte d'environ 30% du montant de l'adjudication sera demandé pour l'ouverture du chantier.",
+          "Un deuxième acompte sera demandé à la fin du premier tiers du chantier.",
+          "Un troisième acompte sera demandé à la fin du deuxième tiers du chantier.",
+          "Une facture du solde du montant final sera envoyée à la fin du chantier.",
+          "",
+      ]
+      addLine(terms.join('\n'), { font: { bold: true }, height: 100 })
+      this.addEmptyRow()
+      addLine(notes.join('\n'), { font: { bold: true}, height: 60 })
+    }
     this.addEmptyRow()
     this.addEmptyRow()
     addLine(
@@ -297,6 +299,10 @@ class Excelor{
       lastRow.alignment = { wrapText: true }
       return lastRow
     }
+  }
+  isProviderPrivate(){
+    const { provider_name } = this.project
+    return provider_name === 'Privé'
   }
   initWorkBook(){
     var workbook = new Excel.Workbook();
